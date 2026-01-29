@@ -2,13 +2,14 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-@app.route("/rooms", method=["GET"])
+@app.route("/rooms", methods=["GET"])
 def list_rooms():
     return jsonify({
+        "rooms":[{
         "id":1234,
-        "name": "Salle 204"
+        "name": "Salle 204",
         "type": "Classroom",
-        "floor":2,
+        "floor": 2,
         "equipement":["whiteboard"],
-        "seats":30
+        "seats":30}]
     })
