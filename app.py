@@ -2,6 +2,7 @@ import os
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from pydantic import BaseModel, ValidationError
 
 
 
@@ -29,6 +30,14 @@ class Room(db.Model):
 
     def __repr__(self):
         return f"<Room {self.name}>"
+    
+class CreateRoomRequest(BaseModel):
+    name : str
+    type : str
+    floor : int
+    equipement : str
+    seats : int
+
 
 
 with app.app_context():
@@ -55,13 +64,22 @@ def list_rooms():
 @app.route("/rooms", methods=["POST"])
 def create_room():
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if not data :
+        return jsonify({"error":"INVALID_JSON", "message":"Invalid JSON"}),400
+    
+    try:
+        validated_data = CreateRoomRequest.model_validate(data)
+    except ValidationError as e:
+        return jsonify({"error" : "VALIDATION_ERROR", "message":e.errors()})
+
+
     new_room = Room()
-    new_room.name=data["name"]
-    new_room.type=data["type"]
-    new_room.floor=data["floor"]
-    new_room.equipement=data["equipement"]
-    new_room.seats=data["seats"]
+    new_room.name=validated_data.name
+    new_room.type=validated_data.type
+    new_room.floor=validated_data.floor
+    new_room.equipement=validated_data.equipement
+    new_room.seats=validated_data.seats
 
     db.session.add(new_room)
     db.session.commit()
@@ -73,4 +91,4 @@ def create_room():
         "floor": new_room.floor,
         "equipement": new_room.equipement,
         "seats": new_room.seats
-    })
+    }),201
