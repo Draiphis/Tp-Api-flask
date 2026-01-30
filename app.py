@@ -24,7 +24,7 @@ class Room(db.Model):
     name = db.Column(db.String(50), nullable=False)
     type = db.Column(db.String(50), nullable=False)
     floor = db.Column(db.Integer, nullable=False)
-    equipement = db.Column(db.Text, nullable=False)
+    equipement = db.Column(db.String(48949848), nullable=False)
     seats = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
@@ -36,7 +36,7 @@ with app.app_context():
 
 @app.route("/rooms", methods=["GET"])
 def list_rooms():
-    rooms = roomsEntry.query.all()
+    rooms = Room.query.all()
     clean_rooms = []
     for r in rooms:
        clean_rooms.append({
@@ -57,10 +57,10 @@ def create_room():
 
     data = request.get_json()
     new_room = Room()
-    new_room.name=data["name"],
-    new_room.type=data["type"],
-    new_room.floor=data["floor"],
-    new_room.equipement=data["equipement"],
+    new_room.name=data["name"]
+    new_room.type=data["type"]
+    new_room.floor=data["floor"]
+    new_room.equipement=data["equipement"]
     new_room.seats=data["seats"]
 
     db.session.add(new_room)
